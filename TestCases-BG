@@ -1,7 +1,1 @@
-Here's the corrected version of the text:
-
-In the previous requirement, we indicated that if the timestamp is null, we would display "Date not available." However, with our new changes, in one channel, if any timestamp is shown, it will be taken as the date, while in other chat messages, "Date not available" will be displayed.
-
-If the timestamp is null in the entire column, the header will be set as "Start time: Date," and if the date in the "Start time: Date" column is empty or null, it will be set as "Last activity: Date."
-
-Furthermore, if "Start time: Date" is null in any row, it will be treated as "Date not available," and the same applies to "Last activity: Date."
+If one channel has two timestamps, and one of them is null, then this message is counted as the last message date.
