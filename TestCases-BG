@@ -1,1 +1,2 @@
-If one channel has two timestamps, and one of them is null, then this message is counted as the last message date.
+For this requirement, I checked that when the folder was created, it had the name "01 Jan 70." However, after applying our new changes, the folder name was modified 
+to "Date not available," and a corresponding knmf file was created with the name "Date not available.knmf."
