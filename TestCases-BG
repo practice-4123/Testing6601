@@ -1,2 +1,1 @@
-For this requirement, I checked that when the folder was created, it had the name "01 Jan 70." However, after applying our new changes, the folder name was modified 
-to "Date not available," and a corresponding knmf file was created with the name "Date not available.knmf."
+For this requirement we can check with updated .net framwork from 4.7 to 4.8, and running all the Process and it's working fine for CnCommon and SocialMediaAnalytics and Cellebrite so this mention Requirement is resolved now 
