@@ -1,3 +1,4 @@
-For this requirement we can check with updated .net framwork from 4.7 to 4.8, 
-and running all the Process and it's working fine for
-CnCommon and SocialMediaAnalytics and Cellebrite so this mention Requirement is resolved now 
+ Hey team,
+
+In Knovos chat parser, we have new requirements for "Process Multiple Files." Simply check the "Process Multiple Files" checkbox, and it will process all the files at once.
+For this, you can check the screenshot.
