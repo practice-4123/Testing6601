@@ -2,3 +2,5 @@
 
 In Knovos chat parser, we have new requirements for "Process Multiple Files." Simply check the "Process Multiple Files" checkbox, and it will process all the files at once.
 For this, you can check the screenshot.
+
+If users want to process multiple files, all processing stages will be the same for each file.
