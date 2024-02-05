@@ -5,3 +5,6 @@ For this, you can check the screenshot.
 
 If users want to process multiple files, all processing stages will be the same for each file.
 After updating with new changes, if the storage increases to 90%, it will go into "Safe mode," and you can display it in the health check.
+
+
+After applying new changes, if the storage increases more than 90%, it will go into "Safe mode," and you can see it in the health check.
