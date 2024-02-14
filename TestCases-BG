@@ -8,3 +8,6 @@ After updating with new changes, if the storage increases to 90%, it will go int
 
 
 After applying new changes, if the storage increases more than 90%, it will go into "Safe mode," and you can see it in the health check.
+
+
+After applying the new changes, you can now create any new case with special characters and generate any analytics loads. If loads fail for any reason, logs will be generated inside the folder of that special characters case.
