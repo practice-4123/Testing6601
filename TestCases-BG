@@ -1,1 +1,2 @@
 First, we pass the participation name for "chat title." For "daily," we pass the participation name + date. However, after applying new changes in split data, if "chat title" is blank, we give blank in metadata.json. For "daily," we provide conversion title + date, and if the title is blank, we only provide the date.
+Issue number 3 is not an issue; it's a new change that has already been implemented. That's why the output was altered, and this has been corrected.
