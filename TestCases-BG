@@ -1,14 +1,1 @@
-First, we pass the participation name for "chat title." For "daily," we pass the participation name + date. However, after applying new changes in split data, if "chat title" is blank, we give blank in metadata.json. For "daily," we provide conversion title + date, and if the title is blank, we only provide the date.
-Issue number 3 is not an issue; it's a new change that has already been implemented. That's why the output was altered, and this has been corrected.
-Here, I have attached a Word file containing most of the messages with screenshots. While most messages are covered, the chat parser utility is still in development, so I anticipate new messages being added. I will update you with those messages. I hope this helps.
-
-
-Here, I've attached a Word file containing all messages with screenshots from the chat parser utility. The utility is still in development, so if any new messages are added, I'll update you. I hope this helps you.
-
-First, we displayed the input-output structure in the left-side panel. After applying the new changes, the structure has been altered, and now you can add the case name and job name in the left panel.
-
-After applying new changes, the database is now centralized. In these changes in utility, we have displayed a file named "db.text" containing the database location. The database is created with "kn.case" in this specified loca
-
-
-
-After applying the new requirements, now all the information is shown in UI grids.
+In this requirement, you can generate a report by clicking on the "Summary Report" button. Once the report is generated, you can also open it. In the "Summary Report," you can display these details.
