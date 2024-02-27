@@ -7,4 +7,8 @@ Here, I've attached a Word file containing all messages with screenshots from th
 
 First, we displayed the input-output structure in the left-side panel. After applying the new changes, the structure has been altered, and now you can add the case name and job name in the left panel.
 
-After applying new changes, the database is now centralized. In these changes in utility, we have displayed a file named "db.text" containing the database location. The database is created with "kn.case" in this specified location.
+After applying new changes, the database is now centralized. In these changes in utility, we have displayed a file named "db.text" containing the database location. The database is created with "kn.case" in this specified loca
+
+
+
+After applying the new requirements, now all the information is shown in UI grids.
