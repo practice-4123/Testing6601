@@ -1,1 +1,5 @@
 In this requirement, you can generate a report by clicking on the "Summary Report" button. Once the report is generated, you can also open it. In the "Summary Report," you can display these details.
+
+
+
+If the user clicks the copy button for the first time and then selects any grid like "attachment," the copy button cannot be disabled if the user double-clicks outside the grid.
