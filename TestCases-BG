@@ -35,5 +35,24 @@ Sub ExtractThreadIDs()
     Next
 End Sub
 
+
+
+
+
+
+Sub ExportThreadIDs()
+    Dim folder As Outlook.MAPIFolder
+    Dim item As Object
+
+    ' Set the folder to the desired Outlook folder
+    Set folder = Application.ActiveExplorer.CurrentFolder
+
+    ' Loop through items in the folder
+    For Each item In folder.Items
+        ' Extract and print the ConversationID (thread ID)
+        Debug.Print item.ConversationID
+    Next item
+End Sub
+
 ' Run the extraction
 ExtractThreadIDs()
