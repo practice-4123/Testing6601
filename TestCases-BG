@@ -1,1 +1,39 @@
-Now, open the UI "create job name." Then, you can select "case name," "case path," and "job name" based on your requirements. Additionally, you can choose the job type.
+Option Explicit
+
+ Namespace
+Function GetOutlookNamespace()
+    Dim OutlookApp
+    Set OutlookApp = CreateObject("Outlook.Application")
+    Set GetOutlookNamespace = OutlookApp.GetNamespace("MAPI")
+End Function
+
+ (PR_CONVERSATION_ID) of each mail item
+Function GetThreadID(mail)
+    ' Property tag for PR_CONVERSATION_ID
+    Dim PR_CONVERSATION_ID
+    PR_CONVERSATION_ID = "http://schemas.microsoft.com/mapi/proptag/0x3013001E"
+    
+    On Error Resume Next ' In case the property is not found
+    GetThreadID = mail.PropertyAccessor.GetProperty(PR_CONVERSATION_ID)
+    On Error GoTo 0 ' Turn back on error reporting
+End Function
+
+Sub ExtractThreadIDs()
+    Dim olNamespace, olFolder, mailItem, threadID
+    Set olNamespace = GetOutlookNamespace()
+    
+    ' Change "Inbox" to the name of the folder you wish to scan. To access a subfolder use .Folders("SubfolderName")
+    Set olFolder = olNamespace.GetDefaultFolder(6) ' 6 is the folder ID for Inbox
+    
+    ' Loop through each item in the folder
+    For Each mailItem In olFolder.Items
+        If mailItem.Class = 43 Then ' 43 is the item class for mail items
+            threadID = GetThreadID(mailItem)
+            ' Output the Subject and Thread ID - you can change this to suit your needs
+            WScript.Echo "Subject: " & mailItem.Subject & " | Thread ID: " & threadID
+        End If
+    Next
+End Sub
+
+' Run the extraction
+ExtractThreadIDs()
