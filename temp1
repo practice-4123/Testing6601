@@ -1,0 +1,455 @@
+CommonFunction
+
+import shutil
+from Shared.CustomBy import By
+from selenium.webdriver.common.action_chains import ActionChains
+import selenium.webdriver.support.expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import ElementNotInteractableException, TimeoutException, NoSuchElementException
+import os, random, time, datetime, sys
+from Logger.Logger import Logger
+from TestData.Config import Config
+from DataAccess.Query import *
+from DataAccess.Tables import Tables
+from tfs import TFSAPI
+from requests_negotiate_sspi import HttpNegotiateAuth
+import zipfile, glob
+
+
+class CommonFunction:
+	version = ""
+
+	@staticmethod
+	def set_driver(driver):
+		CommonFunction.driver = driver
+
+	@staticmethod
+	def set_download_path(path):
+		CommonFunction.download_path = path
+	   
+	#----- web element methods
+
+	def click_element(self, locator, element):
+		"""Clicks on a web element specified by locator type and element identifier.
+			
+        :Args:
+         - locator: The type of locator (e.g., By.ID, By.XPATH, By.ITEMID).
+		 - element: The locator value of the element to be clicked.
+		"""
+		if locator == By.ITEMID:
+			html_id = self.get_html_id_from_item_id(element)
+			locator = By.ID
+			element = html_id
+
+		self.wait_element(locator, element)
+		element_to_click = self.driver.find_element(locator, element)
+		ActionChains(self.driver).move_to_element(element_to_click).perform()
+		element_to_click.click()
+
+	def hover_element(self, locator, element, timeout=60):
+		"""Hover on a web element specified by locator type and element identifier.
+			
+        :Args:
+         - locator: The type of locator (e.g., By.ID, By.XPATH, By.ITEMID).
+		 - element: The locator value of the element to be clicked.
+		"""
+		if locator == By.ITEMID:
+			html_id = self.get_html_id_from_item_id(element)
+			locator = By.ID
+			element = html_id
+
+		wait = WebDriverWait(self.driver, timeout, poll_frequency=1)
+		try:
+			wait.until(EC.presence_of_element_located((locator, element)))
+		except Exception as e:
+			print(f"Element is not present in dom {e}")
+
+		element_to_click = self.driver.find_element(locator, element)
+		ActionChains(self.driver).move_to_element(element_to_click).perform()
+
+	def right_click_element(self, locator, element):
+		"""Right clicks on a web element specified by locator type and element identifier.
+			
+        :Args:
+         - locator: The type of locator (e.g., By.ID, By.XPATH, By.ITEMID).
+		 - element: The locator value of the element to be clicked.
+		"""
+		if locator == By.ITEMID:
+			html_id = self.get_html_id_from_item_id(element)
+			locator = By.ID
+			element = html_id
+
+		self.wait_element(locator, element)
+		element_to_click = self.driver.find_element(locator, element)
+		ActionChains(self.driver).move_to_element(element_to_click).context_click().perform()
+		
+	def type_element(self, locator, element, text, clear=True):
+		"""Types text into a web element specified by locator type and element identifier.
+
+		:Args:
+         - locator: The type of locator (e.g., By.ID, By.XPATH, By.ITEMID).
+		 - element: The locator value of the element to type into.
+		 - text: The text to be typed into the element.
+		"""
+		if locator == By.ITEMID:
+			html_id = self.get_html_id_from_item_id(element)
+			locator = By.ID
+			element = html_id
+
+		self.wait_element(locator, element)
+		element_to_click = self.driver.find_element(locator, element)
+		ActionChains(self.driver).move_to_element(element_to_click).perform()
+		if clear:
+			element_to_click.clear()
+		element_to_click.send_keys(text)
+
+	def double_click_element(self, locator, element):
+		"""Double-clicks on a web element specified by locator type and element identifier.
+
+		:Args:
+         - locator: The type of locator (e.g., By.ID, By.XPATH, By.ITEMID).
+		 - element: The locator value of the element to be double-clicked..
+		"""
+		if locator == By.ITEMID:
+			html_id = self.get_html_id_from_item_id(element)
+			locator = By.ID
+			element = html_id
+
+		self.wait_element(locator, element)
+		element_to_click = self.driver.find_element(locator, element)
+		ActionChains(self.driver).move_to_element(element_to_click).double_click().perform()
+
+	def is_element_displayed(self, locator, element, timeout = 20):
+		"""Checks if a web element is displayed on the page.
+
+		:Args:
+         - locator: The type of locator (e.g., By.ID, By.XPATH, By.ITEMID).
+		 - element: The locator value of the element to check.
+		 - timeout: The maximum amount of time to wait for the element to be visible (in seconds). Default is 20 seconds.
+
+		:Returns:
+		 - True if the element is displayed, False otherwise.
+		"""
+		try:
+			if locator == By.ITEMID:
+				html_id = self.get_html_id_from_item_id(element)
+				locator = By.ID
+				element = html_id
+
+			self.driver.implicitly_wait(timeout)
+			wait = WebDriverWait(self.driver, timeout, poll_frequency=1, ignored_exceptions=[NoSuchElementException, TimeoutException])
+			element_displayed = wait.until(EC.visibility_of_element_located((locator, element)))
+			self.driver.implicitly_wait(60)
+			return element_displayed.is_displayed()
+		
+		except (NoSuchElementException, TimeoutException):
+			return False
+		except Exception as e:
+			return False
+
+	def wait_element(self, locator, element, timeout = 60):
+		"""Waits for a web element to be clickable or visible.
+
+		:Args:
+		 - locator: The type of locator (e.g., By.ID, By.XPATH, By.ITEMID).
+		 - element: The locator value of the element to wait for.
+		 - timeout: The maximum amount of time to wait (in seconds). Default is 60 seconds.
+		"""
+		if locator == By.ITEMID:
+			html_id = self.get_html_id_from_item_id(element)
+			locator = By.ID
+			element = html_id
+
+		wait = WebDriverWait(self.driver, timeout, poll_frequency=1, ignored_exceptions=[ElementNotInteractableException, TimeoutException])
+		try: 
+			wait.until(EC.element_to_be_clickable((locator, element))) 
+		except TimeoutException: 
+			wait.until(EC.visibility_of_element_located((locator, element))) 
+		except Exception as e: 
+			print(f"Web element not found: {e}")
+
+	def get_element_text(self, locator, element):
+		"""Retrieves text from a web element, using either .text or get_attribute('value').
+
+		:Args:
+         - locator: The type of locator (e.g., By.ID, By.XPATH, By.ITEMID).
+		 - element: The locator value of the element to get text from.
+
+		:Returns:
+		 - str: The text or value of the element.
+		"""
+		try:
+			self.wait_element(locator, element)
+			element_to_get_text = self.driver.find_element(locator, element)
+			text = element_to_get_text.text or element_to_get_text.get_attribute('value')
+			return text
+		except Exception as e:
+			print(f"Error getting text from element: {e}")
+			return ""
+
+	def get_html_id_from_item_id(self, item_id):
+		"""Retrieves the HTML ID of an ExtJS component using its itemId.
+
+		:Args:
+		 - item_id: The itemId of the ExtJS component.
+
+		:Returns:
+		 - The HTML ID of the ExtJS component.
+		"""
+		script = f"var components = Ext.ComponentQuery.query('viewport')[0].query('{item_id}');{Config.extJsJavascriptForViewport}"
+		result = self.driver.execute_script(script)
+		if result:
+			return result
+		script = f"var components = Ext.WindowManager.getActive().query('{item_id}');{Config.extJsJavascriptForViewport}"
+		return self.driver.execute_script(script)
+
+	def expand_combo(self, item_id):
+		return self.driver.execute_script("return Ext.ComponentQuery.query('viewport')[0].query('"+item_id+"')[0].expand()")
+	
+	def collapse_combo(self, item_id):
+		return self.driver.execute_script("return Ext.ComponentQuery.query('viewport')[0].query('"+item_id+"')[0].collapse()")
+
+ 
+	def update_devops_status(self, id, status, message):
+		""" Updates a DevOps work item:
+		- Cleans up tags: removes previous Automation status, adds new one only if needed
+		- Updates AutomationStatus to "Automated" if applicable
+
+		Args:
+			id (int): Work item ID
+			status (str): "Pass" or "Fail"
+			message (str): Additional message
+		"""
+		try:
+			current_datetime = str(datetime.datetime.now().replace(microsecond=0))
+			if CommonFunction.version == "":
+				CommonFunction.version = Query.get_patch_version()
+
+			full_message = f"{current_datetime} Build Version: {CommonFunction.version} {message} : {status}"
+			status_tag = "Automation Pass" if status.lower() == "pass" else "Automation Fail"
+
+			client = TFSAPI(Config.devOpsURL, project=Config.devOpsProjects, auth_type=HttpNegotiateAuth)
+			print(f"##{Config.devOpsWorkItemURL}{id}##")
+
+			workitem = client.get_workitem(id)
+			update_payload = []
+
+			# Extract and clean existing tags
+			existing_tags = workitem.get("tags", "")
+			tag_list = [tag.strip() for tag in existing_tags.split(";") if tag.strip()]
+
+			if status_tag not in tag_list:
+				client.update_workitem(id, [{"op": "remove", "path": "/fields/System.Tags"}], None)
+
+				tag_list = [tag for tag in tag_list if tag not in ["Automation Pass", "Automation Fail"]]
+				tag_list.append(status_tag)
+				final_tags = "; ".join(tag_list)
+
+				update_payload.append({
+					"op": "add",
+					"path": "/fields/System.Tags",
+					"value": final_tags
+				})
+
+			# Update AutomationStatus if applicable
+			automation_field = "Microsoft.VSTS.TCM.AutomationStatus"
+			current_status = workitem.get(automation_field, None)
+			if current_status:
+				if current_status != "Automated":
+					update_payload.append({
+						"op": "replace",
+						"path": f"/fields/{automation_field}",
+						"value": "Automated"
+					})
+
+			# Apply updates
+			if update_payload:
+				client.update_workitem(id, update_payload, None)
+
+			# Local description update (optional)
+			workitem["Description"] = full_message
+
+		except Exception as e:
+			print(f"[ERROR] Failed to update DevOps Work Item {id}: {e}")
+
+		#----- execution time method
+
+	def execution_time(self, start_time):
+		"""Calculates and prints the total execution time for a test case.
+
+		:Args:
+		 - start_time: The start time of the test case.
+		"""
+		end_time = datetime.datetime.now()
+		execution_time = end_time - start_time
+		print(f"Total execution time: {execution_time}")
+	
+	#----- screenshot method
+
+	def screenshot(self, e, module_name = "automation"):
+		"""Takes a screenshot when an exception occurs and saves it to a specified location with a unique filename.
+
+		:Args:
+		 - e: The exception object that triggered the screenshot.
+		 - module_name: The name of the module where the exception occurred. Default is 'automation' seconds.
+		"""
+		try:
+			# Print exception
+			# print(e)
+			Logger.add_error(e)
+
+			# Retrieve exception details
+			exc_type, exc_obj, exc_tb = sys.exc_info()
+			randomno = random.randint(1, 999999)
+			while exc_tb != None :
+				fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+				print(exc_tb.tb_frame.f_code.co_name, e.__class__.__name__, fname, exc_tb.tb_lineno)
+				lineno = exc_tb.tb_lineno
+				exc_tb = exc_tb.tb_next
+				
+			# Generate timestamp and file name
+			time_stamp = datetime.datetime.now().strftime("%Y_%m_%d_%H%M")
+			location = Config.screenshortPath
+			fileName = f"{module_name}{time_stamp}_{lineno}_{randomno}.png"
+			screenshotpath = os.path.join(location, fileName)
+
+			# Create directory if it doesn't exist
+			if not os.path.exists(location):
+				os.makedirs(location)
+
+			# Save screenshot
+			self.driver.save_screenshot(screenshotpath)
+
+			# Print screenshot path
+			print(f"\n^{screenshotpath}^")
+		except Exception as e:
+			print(f"Screenshot not saved: {e}")
+
+	def open_new_tab(self, tabs= 1):
+		""" Function to open new tab.
+		:Args:
+		- tabs: No of tabs already opened"""
+		self.driver.execute_script("window.open('', '_blank');")
+		WebDriverWait(self.driver, 10).until(lambda d: len(d.window_handles) > tabs)
+		self.driver.switch_to.window(self.driver.window_handles[tabs])
+
+	def extract_all_from_zip(self, zipName, extension = "zip"):
+		"""to extract all from zip.
+		:Args:
+			- zipName : name of zip file.
+		"""
+		print("zip extracting started")
+		file_name = "" +self.get_download_path()+ "" +zipName+ "*" +extension+ ""
+		file_name = glob.glob(file_name)
+		zip_ref = zipfile.ZipFile(file_name[0], 'r')
+		zip_ref.extractall(self.get_download_path())
+		zip_ref.close()
+		print("zip extracted")
+
+	def get_download_path(self):
+		return self.download_path
+	
+	def create_download_directory(self):
+		if os.path.exists(self.download_path) == False:
+			os.mkdir(self.download_path)
+			print(f"download directory created at location {self.download_path}")
+		else:
+			print(f"download directory exists at location {self.download_path}")
+
+	def delete_download_directory(self):
+		if os.path.exists(self.download_path):
+			shutil.rmtree(self.download_path)
+			print(f"Deleting download directory {self.download_path}")
+		else:
+			print(f"download directory not exists {self.download_path}")
+	
+	def delete_from_downloads_folder(self, file_name, ext):
+		try:
+			print("Deleting existing file(s)")
+			filename=self.get_download_path()+ f"{file_name}*{ext}"
+			time.sleep(1)
+			list_of_files = glob.glob(filename)
+			if len(list_of_files)>0:
+				for x in list_of_files:
+					print("Deleting "+str(x)+" file.")
+					os.remove(str(x))
+			else:
+				print("\nNo existing file(s) to Delete.")
+		except Exception as e:
+			print(e)
+
+	def wait_for_file_to_download(self, partial_name, download_dir= None, extension="zip", timeout= 60):
+		"""
+		Wait for a downloaded file matching partial_name and extension using glob.
+		
+		Args:
+			download_dir (str): Download directory to monitor
+			partial_name (str): Part of the expected filename (e.g., 'invoice' or 'report_')
+			extension (str): Expected file extension (e.g., 'pdf', 'csv')
+			timeout (int): Max seconds to wait
+
+		Returns:
+			str or None: Path to the downloaded file, or None on timeout
+		"""
+
+		if not(download_dir):
+			download_dir = self.get_download_path()
+
+		search_pattern = os.path.join(download_dir, f"*{partial_name}*.{extension}")
+		end_time = time.time() + timeout
+		
+		while time.time() < end_time:
+			# Skip any files that are still downloading
+			files = [f for f in glob.glob(search_pattern) if not f.endswith(".crdownload")]
+			if files:
+				# Return the newest matching file
+				return max(files, key=os.path.getmtime)
+			time.sleep(1)
+
+		return None
+
+	def fetch_db_name_by_case_name_using_db(self, case_name):
+		table = Tables.tblCaseMapping
+		whereClause = f"CaseTitle = '{case_name}'"
+		returnValue = "eZReviewCaseId"
+		try:
+			caseId = Query.fetch_records(database=Database.dbMaster, table= table, return_value= returnValue, where_clause= whereClause)
+			caseId = caseId[0][0]
+
+			table = Tables.tblCaseMaster
+			whereClause = f"CaseId = {caseId}"
+			returnValue = "caseDbName"
+			dbName = Query.fetch_records(database=Database.dbMaster, table= table, return_value= returnValue, where_clause= whereClause)
+			dbName = dbName[0][0]
+
+			return dbName
+		except Exception as e:
+			print (f"error in getting name {e}")
+			return None
+
+	def get_column_index_by_xpath(self, InnerTextXpath, ColumnName):
+		index = 0
+		columns = []
+		columns = self.driver.find_elements(By.XPATH, InnerTextXpath)
+		for i in range(0, len(columns)):
+			# columns = self.driver.find_elements(By.XPATH, InnerTextXpath)
+			if(columns[i].text == ColumnName):
+				index=i
+		return str(index)
+	
+	def extract_file_name_from_file_path(self, file_path: list[str]| str):
+		"""Function to retrn absolute file name from file path.
+		Args:
+			file_path (list | str): requires file path.
+		Returns:
+			file_name (list| str): returns file name"""
+		fileName = ''
+		if isinstance(file_path, list):
+			fileName = []
+			for path in file_path:
+				fileName.append(os.path.splitext(os.path.basename(path))[0])
+		
+		elif isinstance(file_path, str):
+			fileName = os.path.splitext(os.path.basename(file_path))[0]
+		
+		return fileName
