@@ -1,0 +1,141 @@
+#example for usage
+
+import random, json, os
+from datetime import datetime
+
+class TestData:
+    currentDateTime = datetime.now().strftime("%d_%m_%Y_%H%M%S")
+    randomNo = str(random.randint(1, 9999))
+
+    product_name = ""
+    environment = ""
+    browser = ""
+    update_devops = False
+    modules = []
+
+    #  changed as discussed with divyesh sir
+    def get_run_details_from_testinfo():
+        """Parse the JSON file to get the run details."""
+        ROOT_LOCATION = os.getenv('TEST_INFO_LOCATION')
+        if ROOT_LOCATION is None:
+            ROOT_LOCATION = os.getcwd()
+            
+        jsonFilePath = ROOT_LOCATION + "\\TestInfo.json"
+        with open(jsonFilePath, 'r') as file:
+            data = json.load(file)
+        TestData.product_name = data['ProductName']
+        TestData.environment = data['Environment']
+        TestData.browser = data['Browser']
+        TestData.update_devops = data['UpdateDevOps']
+        
+        for module in data['Modules']:
+            module_name = module['ModuleName']
+            test_cases = module['TestCases']
+            TestData.modules.append({
+                'ModuleName': module_name,
+                'TestCases': test_cases
+            })
+ 
+
+class LoginTestData:
+    userAutoSuperAdmin02 = "AutoSuperAdmin02"
+    passAutoSuperAdmin02 = "Admin@12345"
+    userAutoSuperAdmin03 = "AutoSuperAdmin03"
+    passAutoSuperAdmin03 = "Superadmin@123"
+    userInvelid = "userInvelid"
+    passInvelid = "passInvelid"
+    userAutomationUser03 = "AutomationUser03"
+    passAutomationUser03 = "Automation@03"
+
+    userAutoTiff01 = "AutoTiff01"
+    passAutoTiff01 = "Admin@12345"
+    userAutoTranslation01 = "AutoTranslation01"
+    passAutoTranslation01 = "Admin@12345"
+    userAutoExportDoc01 = "AutoExportDoc01"
+    passAutoExportDoc01 = "Admin@12345"
+    userAutoExportMeta01 = "AutoExportMeta01"
+    passAutoExportMeta01 = "Admin@12345"
+    userAutoMassOp01 = "AutoMassOp01"
+    passAutoMassOp01 = "Admin@12345"
+    userShareDocument = "AutoShareDocument01"
+    passShareDocument = "Admin@12345"
+    userSharing = "AutoShare05"
+    passwordSharing = "Admin@12345"
+    userReviewRule = "AutoReviewRules"
+    passwordReviewRule = "Admin@12345"
+
+class OutlookPageTestData:
+    urlOutlook = "https://webmail.knovos.com/"
+    username = "Automationuser03@knovos.com"
+    password = "Automation@03"
+    username2 = "Automationuser01@knovos.com"
+    password2 = "Automation@01"
+    
+class CaseListTestData:
+    caseNameAutoReviewDND01 = "Auto Review DND 01"
+
+class UserWorkspaceTestData:
+    tiffCreateDeleteFolderName = "R187888 TIFF DND"
+    tiffCreateValidationFolderName = "R187888 TIFF Exist DND"
+    TranslationFolderName = "R187889 Translation DND"
+    exportMetaDataFolderName = "R187886 Export Metadata DND"
+    metadataName = ['DocType', 'DocumentId', 'ProcessDocumentID', 'OriginalFileName', 'AllCustodian', 'ProductionName', 'ED_Author', 'Tiff Page Count']
+    ftpFolderName = 'Discovery/Export'
+    exportDocumentFolderName = "R187886 Export Documents DND"
+    massOperationFolderName = "R187885 Mass Operation DND"
+    shareDocumentFolderName = "R187887 Share Document"
+
+    exportDocumentProductionName01 = "R187886 Export Documents Production DND 01"
+    exportDocumentProductionName02 = "R187886 Export Documents Production DND 02"
+
+class CommentTestData:
+    commentTextSpecificValueName = "R187885 Text Specific Value Comment DND"
+    commentTextComment = "R187885 Text Comment DND"
+    commentTextLongValueName = "R187885 Long Text Comment DND"
+    commentDateTimeValueName = "R187885 Datetime Comment DND"
+    commentDateSpecificValueName = "R187885 Datetime Specific Value Comment DND"
+    commentNumericSpecificValueName = "R187885 Numeric Specific Value Comment DND"
+    commentLongTextSpecificValueName = "R187885 Long Text Specific Value Comment DND"
+    commentNumericValueName = "R187885 Numeric Comment DND"
+    commentDropDownTextValue = "R187885 Drop Down Text Comment DND with YES"
+    commentTextSpecificDropDownValue = "R187885 Drop Down text with specific value with YES"
+    commentNumericSpecificDropDownValue = "R187885 Drop Down numeric with specific value with YES"
+    commentDropDownNumericValue = "R187885 Drop Down Numeric Comment DND with YES"
+    reviewRuleComment1 = "R187891 RR DND1"
+    reviewRuleComment2 = "R187891 RR DND2"
+    reviewRuleComment3 = "R187891 RR DND3"
+    reviewRuleComment4 = "R187891 RR DND4"
+
+class TagTestData:
+    tagMassOperation = "R187885 Mass Operation Tag DND"
+    tagMassOperation2 = "R187885 Mass Operation Tag 2 DND"
+    tagMutualExclusion1 = "TC Mutual Exclusion DND1"
+    tagMutualExclusion2 = "TC Mutual Exclusion DND2"
+    tagMutualExclusion3 = "Mutual Exclusion DND03"
+    tagReviewRule = "Tag do not delete"
+    childReviewTag = "chile_Mutual Exclusion"
+    tagMutualExclusion4 = "TC Mutual Exclusion DND4"
+    childReviewTag2 = "chile_Mutual Exclusion2"
+    tagMutualExclusion5 = "TC Mutual Exclusion DND5"
+    tagMutualExclusion6 = "TC Mutual Exclusion DND6"
+    
+class BindersTestData:
+    binderName = "R187885 Mass Operation Binder DND"
+    createNewBinderName = "R187885 Binder del"
+    
+class FtpTestData:
+    ftpAddress = "sftp.kntest.local"
+    ftpUsername = "Test001"
+    ftpPassword = "pass@123"
+
+class CaseDocumentsTestData:
+    selectFolderDocument = "Case Folders"
+
+class IndexingTestData:
+    indexingFolderName = "R187768 Indexing DND"
+    indexingProductionName = r"R187768 Indexing DND\001"
+    
+
+
+
+
