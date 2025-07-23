@@ -1,0 +1,188 @@
+import random
+import threading
+import unittest, os, subprocess
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoAlertPresentException
+from Shared.CommonFunction import CommonFunction
+from Shared import ChromeDriverExe
+from datetime import datetime
+from TestData.TestData import TestData
+from selenium.webdriver.chrome.service import Service
+import re
+
+class WebDriverBase(unittest.TestCase):
+    """A base class for all test cases that require a web driver setup.
+    It initializes the browser driver and provides a consistent testing environment.
+
+    Attributes:
+        testCaseTime (datetime): Tracks the start time of each test case.
+        Brows: Represents the browser being used for testing (global).
+    """
+    global testCaseTime
+    global Brows
+
+    def setUp(self):
+        """Sets up the web driver environment before each test case.
+
+        - Initializes the browser driver based on the configuration in TestData.
+        - Maximizes the browser window and sets an implicit wait.
+        - Opens the environment URL specified in TestData.
+        - Sets the driver in the CommanFunctions utility.
+
+        Raises:
+            Exception: If the driver initialization or setup fails.
+        """
+        try:
+            # Track the start time of the test case
+            WebDriverBase.testCaseTime = datetime.now()
+
+            # Browser setup based on configuration
+            if TestData.browser == "Chrome":
+                # Get ChromeDriver executable path and set Chrome options
+                path = ChromeDriverExe.get_chromedriver_exe_path()
+                service = Service(executable_path=path)
+                options = webdriver.ChromeOptions()
+
+                # Set Chrome options for enhanced compatibility
+                options.add_argument('--disable-dev-shm-usage')
+                options.add_argument('--allow-running-insecure-content')
+                options.add_argument('--ignore-ssl-errors')
+                options.add_argument('--ignore-certificate-errors')
+                #options.add_argument('--headless')
+                
+                self.download_path = os.path.join(os.path.expanduser('~\\Downloads\\'), 'del'+ str(random.randint(1, 99999)) + os.sep)
+                prefs = {
+                    "download.default_directory": self.download_path,
+                    "download.prompt_for_download": False,
+                    "download.directory_upgrade": True,
+                    "safebrowsing.enabled": True,
+                    "safebrowsing.disable_download_protection": True
+                }
+                options.add_experimental_option("prefs", prefs)
+
+                self.driver = webdriver.Chrome(service=service, options=options)
+
+            elif TestData.browser == "Firefox":
+                # Initialize Firefox driver
+                self.driver = webdriver.Firefox()
+
+            elif TestData.browser == "Internet Explorer":
+                # Initialize Internet Explorer driver
+                IEdriver = "C:/IE/IEDriverServer"
+                os.environ["webdriver.ie.driver"] = IEdriver
+                self.driver = webdriver.Ie(IEdriver)
+
+            # Browser configurations
+            self.driver.implicitly_wait(60)  # Set implicit wait
+            self.driver.maximize_window()   # Maximize browser window
+            self.driver.get(TestData.environment)  # Load environment URL
+
+            # Register the driver with CommanFunctions utility
+            CommonFunction.set_driver(self.driver)
+            CommonFunction.set_download_path(self.download_path)
+
+            # Print the name of the current test case
+            print(self._testMethodName)
+
+        except Exception as e:
+            # Handle and print any exceptions during setup
+            print(f"Error during setup: {e}")
+
+
+    def tearDown(self):
+        """Teardown method that runs after each test case.
+
+        - Quits the web driver instance.
+        - Retrieves test case result (Pass/Fail).
+        - Extracts test case IDs and descriptions from docstring.
+        - Updates DevOps status if enabled.
+        - Logs the total execution time.
+
+        Raises:
+            Exception: If there is an error during teardown.
+        """
+        try:
+            # Quit the driver instance
+            self.driver.quit()
+
+            # Get the test case result (Pass/Fail)
+            isPassed = self.get_testcase_result()
+
+            # Extract test case IDs and their descriptions
+            result = self.extract_test_case_details()
+
+            # Update DevOps status if enabled
+            if TestData.update_devops and result:
+                for test_case_id, description in result.items():
+                    CommonFunction.update_devops_status(self, test_case_id, isPassed, description)
+
+            # Log the total execution time of test case
+            self.execution_time(WebDriverBase.testCaseTime)
+
+        except Exception as e:
+            print(f"Error during teardown: {e}")
+
+    def get_testcase_result(self):
+        """Determines the result of the current test case (Pass/Fail).
+
+        Returns:
+            str: "Pass" if the test case passed, "Fail" if there are errors or failures.
+        """
+        try:
+        
+            if hasattr(self, "_outcome"):  # Verify if the _outcome attribute exists
+                result = self._outcome.result  # Access the test result object
+                test_case_id = self.id()  # Get the current test case ID
+
+                # Check for errors or failures specific to the current test case
+                if any(test_case_id in str(failure[0]) for failure in result.failures) or \
+                any(test_case_id in str(error[0]) for error in result.errors):
+                    return "Fail"
+            
+                return "Pass"
+            else:
+                print(f"Test case '{self.id()}' status could not be determined.")
+                return "Fail"
+        except Exception as e:
+            print(f"Error in determining test case result: {e}")
+            return "Fail"
+
+    def extract_test_case_details(self):
+        """Extracts test case IDs and their descriptions from the docstring using regex.
+
+        Returns:
+            dict: A dictionary mapping test case IDs to their descriptions.
+                  Returns False if no valid docstring is found or an error occurs.
+        """
+        try:
+            test_case_text = self._testMethodDoc  # Fetch the test method docstring
+            if not test_case_text:  # Ensure the docstring exists
+                return False
+
+            test_cases = {}  # Initialize dictionary for storing test case details
+            pattern = r"Test Case\s+(\d+)\s*:\s*(.*)"  # Define regex pattern
+
+            matches = re.finditer(pattern, test_case_text.strip(), re.MULTILINE)
+            for match in matches:
+                test_case_id = int(match.group(1))  # Extract Test Case ID
+                description = match.group(2).strip()  # Extract and clean the description
+                test_cases[test_case_id] = description  # Store in dictionary
+
+            return test_cases if test_cases else False
+        except Exception as e:
+            print(f"Error in extracting test case details: {e}")
+            return False
+
+    def execution_time(self, starttime):
+        """Calculates and logs the total execution time of the test case.
+
+        Args:
+            starttime (datetime): The start time of the test case.
+        """
+        try:
+            endtime = datetime.now()  # Get the end time
+            totaltime = endtime - starttime  # Calculate total execution time
+            print(f"\nTotal Execution Time: $$ {str(totaltime)} $$")
+        except Exception as e:
+            print(f"Error calculating execution time: {e}")
