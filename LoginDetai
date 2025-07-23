@@ -1,0 +1,64 @@
+from Shared.CommonFunction import CommonFunction
+from Shared.CustomBy import By
+import time
+
+class LoginLocator:
+	"""Locators for the Login Page."""
+	txtUserName = "txtUserName"
+	txtPassword = "txtPassword"
+
+	btnGo = "btnLogin"
+	btnLogin = "btnLogin"
+	lblInvalidCredential = "//span[contains(text(),'Invalid Credentials')]"
+	lnkForgotPass = "//a[text()='Forgot password?']"
+	btnCancel = "btnCancel"
+	btnSubmit = "btnSubmit"
+	lblError = "lblError"
+	lblValidationForgotPass = "//span[contains(text(),'Entered User Name is invalid')]"
+
+class LoginPage(CommonFunction):
+    """Page class for the Login Page."""
+
+    def enter_username(self, username):
+        """Enters the username in the username input field.
+
+        :Args:
+         - username: The username to be entered.
+        """
+        self.type_element(By.ID, LoginLocator.txtUserName, username)
+
+
+    def enter_password(self, password):
+        """Enters the password in the password input field.
+
+        :Args:
+         - password: The password to be entered.
+        """
+        self.type_element(By.ID, LoginLocator.txtPassword, password)
+
+    def login(self, username, password):
+        """Performs the login action by entering the username, password, and clicking the login button.
+
+        :Args:
+         - username: The username to be entered.
+         - password: The password to be entered.
+        """
+        self.enter_username(username)
+        self.click_element(By.ID, LoginLocator.btnGo)
+        self.enter_password(password)
+        self.click_element(By.ID, LoginLocator.btnLogin)
+        self.wait_element(By.XPATH, "//label[text()='Case List']")
+        print(f"Login with '{username}' user")
+        time.sleep(3)
+
+    def click_go_btn(self):
+        self.click_element(By.ID, LoginLocator.btnGo)
+
+    def click_login_btn(self):
+        self.click_element(By.ID, LoginLocator.btnLogin)
+
+    def click_forgot_password_link(self):
+        self.click_element(By.XPATH, LoginLocator.lnkForgotPass)
+
+    def click_cancel_btn(self):
+        self.click_element(By.ID, LoginLocator.btnCancel)
