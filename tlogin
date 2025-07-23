@@ -1,0 +1,41 @@
+import unittest, sys, os
+from Shared.CustomBy import By
+from TestData.TestData import LoginTestData, TestData
+from Pages.CaseList.CaseList import *
+from Pages.Authentication.Login import LoginPage
+from Shared.WebDriverBase import WebDriverBase
+from Shared.CommonFunction import CommonFunction
+
+class LoginTest(WebDriverBase):
+
+    @classmethod
+    def setUpClass(self):
+        try:
+            TestData.get_run_details_from_testinfo()
+            self.updateDevOps = TestData.update_devops
+
+            self.cf = CommonFunction()
+            self.moduleName = "Login"
+            self.obj_login = LoginPage()
+
+        except Exception as e:
+            print(e)
+
+    def test_A_R_TC188751_Verify_login_with_valid_credentials(self):
+        """
+        Test Case 188751: Verify Login Page with Valid crendentials.
+        """
+        try:
+            self.obj_login.login(LoginTestData.userAutoSuperAdmin02, LoginTestData.passAutoSuperAdmin02)
+
+            isLogin = self.cf.is_element_displayed(By.ITEMID, CaseListLocator.btnCreateCase)
+            self.assertTrue(isLogin, "Verify login with valid credentials : Fail")
+            print("Verify login with valid credentials : Pass")
+
+        except Exception as e:
+            self.cf.screenshot(e, self.moduleName)
+            self.fail()
+
+
+if __name__ == "__main__":
+    unittest.main()
